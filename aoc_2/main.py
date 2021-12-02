@@ -11,8 +11,8 @@ class Submarine:
         self.x += x
         self.y += y
 
-    def print(self):
-        print("X:{} Y:{}".format(self.x, self.y))
+    def __str__(self):
+        return "X:{} Y:{}".format(self.x, self.y)
 
     def execute_statement(self, statement):
         split = statement.split()
@@ -34,7 +34,7 @@ def main():
     for line in inputfile:
         boat.execute_statement(line)
 
-    boat.print()
+    print(boat)
     print(boat.x * boat.y)
 
 
