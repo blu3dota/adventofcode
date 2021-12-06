@@ -65,7 +65,7 @@ class Board:
         return str(self.grid)
 
 def main():
-    file = os.path.join(sys.path[0], "input.txt")
+    file = os.path.join(sys.path[0], "inpgdfut.txt")
     f = open(file)
 
     dealer = Dealer(f.readline().rstrip('\n').split(","))

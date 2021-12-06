@@ -54,11 +54,12 @@ class Board:
             return True
 
         # vertical
+        won = True
         for number in range(5):
             if self.marks[i][number] == 0:
                 return False
 
-        return True
+        return won
 
     def __str__(self):
         return str(self.grid)
