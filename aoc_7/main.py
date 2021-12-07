@@ -1,16 +1,4 @@
 import os
-import sys
-
-class Crab:
-    def __init__(self, pos):
-        self.pos = pos
-
-    def __str__(self):
-        return f"{self.pos}"
-
-    def __int__(self):
-        return self.pos
-
 
 def main():
     filepath = os.path.join(os.getcwd(), "input.txt")
