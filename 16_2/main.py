@@ -6,7 +6,14 @@ TYPE_ID_LENGTH = 3 # length in bits
 LENGTH_TYPEID_LENGTH = 1 # length in bits
 GROUP_LEN = 5 # length in bits
 
+TYPE_ID_SUM = 0
+TYPE_ID_PRODUCT = 1
+TYPE_ID_MINIMUM = 2
+TYPE_ID_MAXIMUM = 3
 TYPE_ID_LITERAL = 4
+TYPE_ID_GREATER_THAN = 5
+TYPE_ID_LESS_THAN = 6
+TYPE_ID_EQUAL = 7
 
 LENGTH_TYPEID_TOTAL_IN_BITS = 0
 LENGTH_TYPEID_TOTAL_IN_BITS_LEN = 15
@@ -32,6 +39,12 @@ class LiteralPacket(Packet):
     def __str__(self):
         return f"Packet(version: {self.version}, typeid: {self.typeid}(literal), groups: {self.groups}, value: {self.value()})"
 
+    def __int__(self):
+        return self.value()
+
+    def __radd__(self, other):
+        return other + self.value()
+
     def value(self):
         binary_value = ""
         for group in self.groups:
@@ -47,16 +60,40 @@ class OperatorPacket(Packet):
 
         print(f"Read OperatorPacket(Version:{self.version} TypeID:{self.typeid} LengthTypeID: {self.lengthtypeid} Length: {int(self.length, 2)} SubPackets: {len(sub_packets) if sub_packets is not None else 0})")
 
+    def value(self):
+        typeid_dec = int(self.typeid, 2)
+        if typeid_dec == TYPE_ID_SUM:
+            return sum(self.sub_packets)
+        if typeid_dec == TYPE_ID_PRODUCT:
+            product = 1
+            for sub_packet in self.sub_packets:
+                product *= sub_packet.value()
+            return product
+        if typeid_dec == TYPE_ID_MINIMUM:
+            return min(self.sub_packets, key=lambda packet: packet.value()).value()
+        if typeid_dec == TYPE_ID_MAXIMUM:
+            return max(self.sub_packets, key=lambda packet: packet.value()).value()
+        if typeid_dec == TYPE_ID_GREATER_THAN:
+            return 1 if self.sub_packets[0].value() > self.sub_packets[1].value() else 0
+        if typeid_dec == TYPE_ID_LESS_THAN:
+            return 1 if self.sub_packets[0].value() < self.sub_packets[1].value() else 0
+        if typeid_dec == TYPE_ID_EQUAL:
+            return 1 if self.sub_packets[0].value() == self.sub_packets[1].value() else 0
+
+    def __radd__(self, other):
+        return other + self.value()
+
 class Context:
     def __init__(self):
         self.pointer = 0
 
 def main():
-    filepath = os.path.join(os.getcwd(), "sample.txt")
+    filepath = os.path.join(os.getcwd(), "input.txt")
+    packet = None
     with open(filepath) as file:
         for line in file.read().splitlines():
             packet = parse(hex_to_bin(line))
-    print(version_sum)
+    print("Result: ", packet[1].value())
 
 def hex_to_bin(hex):
     return bin(int(hex, 16))[2:].zfill(len(hex) * 4)
